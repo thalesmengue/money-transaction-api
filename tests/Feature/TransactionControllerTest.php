@@ -42,9 +42,6 @@ class TransactionControllerTest extends TestCase
             'amount' => 100
         ]);
 
-        $response->assertStatus(Response::HTTP_CREATED);
-        $response->assertCreated();
-
         $transaction = $response->collect('data');
 
         $this->assertDatabaseHas('wallets', [
@@ -62,6 +59,10 @@ class TransactionControllerTest extends TestCase
                 'amount' => 100
             ]
         );
+
+        $response
+            ->assertStatus(Response::HTTP_CREATED)
+            ->assertCreated();
     }
 
     public function test_shopkeeper_cant_send_transaction(): void
@@ -79,8 +80,9 @@ class TransactionControllerTest extends TestCase
 
         $exception = UserException::cantSendTransaction();
 
-        $response->assertUnprocessable();
-        $response->assertSee($exception->getMessage());
+        $response
+            ->assertUnprocessable()
+            ->assertSee($exception->getMessage());
     }
 
     public function test_user_cant_send_transaction_to_yourself()
@@ -97,7 +99,8 @@ class TransactionControllerTest extends TestCase
 
         $exception = TransactionException::cantSendTransactionToYourself();
 
-        $response->assertSee($exception->getMessage());
-        $response->assertStatus($exception->getCode());
+        $response
+            ->assertSee($exception->getMessage())
+            ->assertStatus($exception->getCode());
     }
 }

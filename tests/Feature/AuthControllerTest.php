@@ -31,8 +31,9 @@ class AuthControllerTest extends TestCase
             'password' => $password,
         ]);
 
-        $response->assertStatus(Response::HTTP_OK);
-        $response->assertOk();
+        $response
+            ->assertStatus(Response::HTTP_OK)
+            ->assertOk();
         $this->assertNotNull($response->json('access_token'));
     }
 
@@ -49,13 +50,14 @@ class AuthControllerTest extends TestCase
             'document' => $user->document,
         ]);
 
-        $response->assertStatus(Response::HTTP_CREATED);
-        $response->assertCreated();
-
         $this->assertDatabaseHas('users', [
             'name' => $user->name,
             'email' => $user->email,
             'document' => $user->document,
         ]);
+
+        $response
+            ->assertStatus(Response::HTTP_CREATED)
+            ->assertCreated();
     }
 }

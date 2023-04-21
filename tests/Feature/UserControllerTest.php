@@ -32,9 +32,10 @@ class UserControllerTest extends TestCase
 
         $response = $this->delete(route('user.destroy', $user->id));
 
+        $this->assertDatabaseEmpty('users');
+
         $response
             ->assertStatus(Response::HTTP_NO_CONTENT)
             ->assertNoContent();
-        $this->assertDatabaseEmpty('users');
     }
 }
