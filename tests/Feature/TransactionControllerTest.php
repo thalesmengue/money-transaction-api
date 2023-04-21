@@ -25,13 +25,13 @@ class TransactionControllerTest extends TestCase
         Passport::actingAs($user);
 
         Http::fake([
-            'https://run.mocky.io/v3/8fafdd68-a090-496f-8c9a-3442cf30dae6' => Http::response([
+            config('authorization.url') => Http::response([
                 'message' => 'Autorizado'
             ], 200)
         ]);
 
         Http::fake([
-            'http://o4d9z.mocklab.io/notify' => Http::response([
+            config('notification.url') => Http::response([
                 'message' => 'Success'
             ], 200)
         ]);
