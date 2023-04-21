@@ -1,66 +1,74 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Desafio de fluxo de transação entre usuários
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Sobre o desafio
 
-## About Laravel
+Nesse desafio, é necessária a criação de uma aplicação que possibilite o envio de transação entre usuários,
+mas se atentando a alguns detalhes como:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Para o usuário é preciso do Nome Completo, CPF, e-mail e Senha. CPF/CNPJ e e-mails devem ser únicos no sistema.
+- Usuários podem enviar dinheiro (efetuar transferência) para lojistas e entre usuários.
+- Lojistas só recebem transferências, não enviam dinheiro para ninguém.
+- Validar se o usuário tem saldo antes da transferência.
+- A operação de transferência deve ser uma transação, que ao apresentar erro ou inconsistência no processo, deve ser revertida e, 
+o dinheiro deve voltar para a carteira do usuário que envia.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Sobre a Resolução
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- A criação da carteira é feita por meio de event/listener, então, no momento que um usuário é registrado,
+  um evento é chamado, e um listener está "ouvindo" esse evento, esse listener realizará a criação da carteira,
+  assim, cada usuário cadastrado irá ter sua carteira criada automaticamente, mas para esse fluxo não acabar lento em
+  algum momento
+  que esteja com muitas requisições, e não tornar a experiência do usuária lenta, o listener de criação da carteira está
+  setado para
+  ser assíncrono, assim, o usuário vai ser registrado, e o listener de criação da carteira jogado para uma fila.
+- Os IDs das carteiras, dos usuários, e dos lojistas foram cadastrados como UUID, tendo em vista que estão sendo
+tratados dados sensíveis.
+- A responsabilidade de criação dos UUIDs foram colocadas em observers.
+- Para a validação do documento dos usuários (lojistas e usuários comuns) foi criada uma regra de validação personalizada,
+  que valida o número aceito de documentos que é 11 para CPF e 14 para CNPJ, também validando se apenas foram inseridos
+  dígitos no campo.
+- Os campos CNPJ/CPF e o email foram setados como ```unique``` para garantir que o usuário consiga ter apenas uma conta.
+- O projeto conta com autenticação, então, para que o usuário possa realizar uma transação deve estar logado, caso contrário,
+  não estará autorizado a realizar a transação.
 
-## Learning Laravel
+### Como rodar o projeto
+```bash
+# clone o projeto
+$ git clone git@github.com:thalesmengue/greenpay.git
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+# instale as dependências
+$ composer install
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+# crie o arquivo .env
+$ cp .env.example .env
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# setar as variáveis de ambient no .env
 
-## Laravel Sponsors
+# gerar uma nova chave da aplicação
+$ php artisan key:generate
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+# migre as tabelas
+$ php artisan migrate
 
-### Premium Partners
+# gere as keys do passaport
+$ php artisan passport:install --uuids
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+# rode a aplicação
+$ php artisan serve
+```
 
-## Contributing
+### Testes
+Foram realizados testes para cobrir os possíveis cenários da aplicação.
+Caso os testes sejam rodados, e após tente inserir dados manualmente pelo postman/insomnia será necessário rodar novamente
+o comando ```php artisan passport:install --uuids```, pois, os testes possuem a trait ```RefreshDatabase``` para garantir
+que quando cada teste for rodar, o banco de dados esteja vazio, e assim, é excluido os clients gerados pelo passport.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Para rodar os testes digite:
+```bash
+ php artisan test
+```
 
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Referências
+- [Laravel 10](https://laravel.com/docs/10.x/installation)
+- [PHP 8.1](https://www.php.net/)
+- [Passport](https://laravel.com/docs/10.x/passport)
