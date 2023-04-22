@@ -14,7 +14,7 @@ class TransactionException extends Exception
 
     public static function transactionUnauthorized(): TransactionException
     {
-        return new self('The current transaction isn\'t authorized!', Response::HTTP_UNAUTHORIZED);
+        return new self("The current transaction isnt authorized!", Response::HTTP_UNAUTHORIZED);
     }
 
     public static function cantSendTransactionToYourself(): TransactionException

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Exceptions\TransactionException;
 use App\Exceptions\UserException;
+use App\Exceptions\WalletException;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -102,5 +103,51 @@ class TransactionControllerTest extends TestCase
         $response
             ->assertSee($exception->getMessage())
             ->assertStatus($exception->getCode());
+    }
+
+    public function test_user_without_enough_balance_cant_send_transaction()
+    {
+        $user = User::factory()->has(Wallet::factory()->state(['balance' => 25]))->create();
+        $receiver = User::factory()->has(Wallet::factory()->state(['balance' => 0]))->create();
+
+        Passport::actingAs($user);
+
+        $response = $this->post(route('transaction'), [
+            'payer_id' => $user->id,
+            'receiver_id' => $receiver->id,
+            'amount' => 100,
+        ]);
+
+        $exception = WalletException::insufficientBalance();
+
+        $response
+            ->assertStatus($exception->getCode())
+            ->assertSee($exception->getMessage());
+    }
+
+    public function test_cannot_make_transaction_with_unauthorized_service()
+    {
+        $user = User::factory()->has(Wallet::factory()->state(['balance' => 25]))->create();
+        $receiver = User::factory()->has(Wallet::factory()->state(['balance' => 0]))->create();
+
+        Passport::actingAs($user);
+
+        Http::fake([
+            config('authorization.url') => Http::response([
+                'message' => 'Unauthorized'
+            ], Response::HTTP_UNAUTHORIZED)
+        ]);
+
+        $response = $this->post(route('transaction'), [
+            'payer_id' => $user->id,
+            'receiver_id' => $receiver->id,
+            'amount' => 20,
+        ]);
+
+        $exception = TransactionException::transactionUnauthorized();
+
+        $response
+            ->assertStatus($exception->getCode())
+            ->assertSee($exception->getMessage());
     }
 }
