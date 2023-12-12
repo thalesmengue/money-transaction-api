@@ -34,28 +34,33 @@ tratados dados sensíveis.
 ### Como rodar o projeto
 ```bash
 # clone o projeto
-$ git clone git@github.com:thalesmengue/greenpay.git
+$ git clone git@github.com:thalesmengue/money-transaction-api.git
 
 # instale as dependências
-$ composer install
+$ docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php81-composer:latest \
+    composer install --ignore-platform-reqs
 
 # crie o arquivo .env
 $ cp .env.example .env
 
-# setar as variáveis de ambient no .env
+# inicie a containerização do docker (com a flag -d para iniciar em segundo plano)
+$ ./vendor/bin/sail up -d
 
 # gerar uma nova chave da aplicação
-$ php artisan key:generate
+$ sail artisan key:generate
 
 # migre as tabelas
-$ php artisan migrate
+$ sail artisan migrate
 
 # gere as keys do passaport
-$ php artisan passport:install --uuids
-
-# rode a aplicação
-$ php artisan serve
+$ sail artisan passport:install --uuids
 ```
+
+Ao final, sua aplicação estará rodando em ```http://localhost```
 
 ### Testes
 Foram realizados testes para cobrir os possíveis cenários da aplicação.
@@ -65,10 +70,11 @@ que quando cada teste for rodar, o banco de dados esteja vazio, e assim, é excl
 
 Para rodar os testes digite:
 ```bash
- php artisan test
+ sail artisan test
 ```
 
 ### Referências
 - [Laravel 10](https://laravel.com/docs/10.x/installation)
 - [PHP 8.1](https://www.php.net/)
 - [Passport](https://laravel.com/docs/10.x/passport)
+- [Docker](https://docs.docker.com/get-started/)

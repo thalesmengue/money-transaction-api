@@ -2,22 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\AuthService;
+use App\Actions\Auth\LoginAction;
+use App\Actions\Auth\RegisterUserAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-    public function __construct(
-        private readonly AuthService $auth
-    )
+    public function register(Request $request, RegisterUserAction $action): JsonResponse
     {
-    }
-
-    public function register(Request $request): JsonResponse
-    {
-        $data = $this->auth->register($request);
+        $data = $action->execute($request->all());
 
         return response()->json([
             'data' => $data['data'],
@@ -25,9 +20,15 @@ class AuthController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    public function login(Request $request): JsonResponse
+    public function login(Request $request, LoginAction $action): JsonResponse
     {
-        $data = $this->auth->login($request);
+        $data = $action->execute($request->all());
+
+        if (!$data['authenticated']) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], Response::HTTP_UNAUTHORIZED);
+        }
 
         return response()->json([
             'data' => $data['data'],
