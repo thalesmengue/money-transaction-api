@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Actions\Transaction;
 
 use App\Clients\AuthorizationClient;
 use App\Clients\NotificationClient;
@@ -9,10 +9,9 @@ use App\Exceptions\UserException;
 use App\Exceptions\WalletException;
 use App\Models\Transaction;
 use App\Models\Wallet;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
-class TransactionService
+class MakeTransactionAction
 {
     public function __construct(
         private readonly NotificationClient $notification,
@@ -21,7 +20,7 @@ class TransactionService
     {
     }
 
-    public function transaction(array $data): Transaction
+    public function execute(array $data)
     {
         return DB::transaction(function () use ($data) {
             $payer = Wallet::query()->with('user')->where('owner_id', '=', $data['payer_id'])->first();
@@ -40,7 +39,7 @@ class TransactionService
                 throw WalletException::insufficientBalance();
             }
 
-            if ($this->authorization->authorize()['message'] != "Autorizado") {
+            if ($this->authorization->authorize()->json('message') != "Autorizado") {
                 throw TransactionException::transactionUnauthorized();
             }
 
@@ -53,7 +52,7 @@ class TransactionService
                 'amount' => $amount,
             ]);
 
-            if ($this->notification->notify()['message'] != "Success") {
+            if ($this->notification->notify()->json('message') != "Success") {
                 throw TransactionException::unavailabilityToSendEmail();
             }
 

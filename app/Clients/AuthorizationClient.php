@@ -2,13 +2,13 @@
 
 namespace App\Clients;
 
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class AuthorizationClient
 {
-    public function authorize(): array
+    public function authorize(): Response
     {
-        $response = Http::get(config('authorization.url'));
-        return $response->json();
+        return Http::get(config('authorization.url'));
     }
 }
