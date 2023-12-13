@@ -2,13 +2,13 @@
 
 namespace App\Clients;
 
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class NotificationClient
 {
-    public function notify(): array
+    public function notify(): Response
     {
-        $response = Http::get(config('notification.url'));
-        return $response->json();
+        return Http::get(config('notification.url'));
     }
 }

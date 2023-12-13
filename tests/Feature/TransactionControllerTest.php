@@ -28,13 +28,13 @@ class TransactionControllerTest extends TestCase
         Http::fake([
             config('authorization.url') => Http::response([
                 'message' => 'Autorizado'
-            ], 200)
+            ], Response::HTTP_OK)
         ]);
 
         Http::fake([
             config('notification.url') => Http::response([
                 'message' => 'Success'
-            ], 200)
+            ], Response::HTTP_OK)
         ]);
 
         $response = $this->post(route('transaction'), [

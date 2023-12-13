@@ -39,7 +39,7 @@ class MakeTransactionAction
                 throw WalletException::insufficientBalance();
             }
 
-            if ($this->authorization->authorize()['message'] != "Authorized") {
+            if ($this->authorization->authorize()->json('message') != "Autorizado") {
                 throw TransactionException::transactionUnauthorized();
             }
 
@@ -52,7 +52,7 @@ class MakeTransactionAction
                 'amount' => $amount,
             ]);
 
-            if ($this->notification->notify()['message'] != "Success") {
+            if ($this->notification->notify()->json('message') != "Success") {
                 throw TransactionException::unavailabilityToSendEmail();
             }
 

@@ -12,6 +12,7 @@ use Tests\TestCase;
 class AuthControllerTest extends TestCase
 {
     use RefreshDatabase;
+
     public $mockConsoleOutput = false;
 
     public function setUp(): void
@@ -42,11 +43,9 @@ class AuthControllerTest extends TestCase
         $user = User::factory()->make();
 
         $response = $this->post(route('register'), [
-            'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'password' => $user->password,
-            'role' => $user->role,
             'document' => $user->document,
         ]);
 

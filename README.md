@@ -51,22 +51,19 @@ $ cp .env.example .env
 $ ./vendor/bin/sail up -d
 
 # gerar uma nova chave da aplicação
-$ sail artisan key:generate
+$ ./vendor/bin/sail artisan key:generate
 
 # migre as tabelas
-$ sail artisan migrate
+$ ./vendor/bin/sail artisan migrate
 
 # gere as keys do passaport
-$ sail artisan passport:install --uuids
+$ ./vendor/bin/sail artisan passport:install --uuids
 ```
 
 Ao final, sua aplicação estará rodando em ```http://localhost```
 
 ### Testes
 Foram realizados testes para cobrir os possíveis cenários da aplicação.
-Caso os testes sejam rodados, e após tente inserir dados manualmente pelo postman/insomnia será necessário rodar novamente
-o comando ```php artisan passport:install --uuids```, pois, os testes possuem a trait ```RefreshDatabase``` para garantir
-que quando cada teste for rodar, o banco de dados esteja vazio, e assim, é excluido os clients gerados pelo passport.
 
 Para rodar os testes digite:
 ```bash
