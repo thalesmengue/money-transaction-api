@@ -18,7 +18,6 @@ o dinheiro deve voltar para a carteira do usuário que envia.
 ser criado um usuário, é escutado o evento de "created" e é criada uma carteira para o usuário.
 - Os IDs das carteiras, dos usuários, e dos lojistas foram cadastrados como UUID, tendo em vista que estão sendo
 tratados dados sensíveis.
-- A responsabilidade de criação dos UUIDs foram colocadas em observers.
 - Para a validação do documento dos usuários (lojistas e usuários comuns) foi criada uma regra de validação personalizada,
   que valida o número aceito de documentos que é 11 para CPF e 14 para CNPJ, também validando se apenas foram inseridos
   dígitos no campo.
