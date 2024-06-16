@@ -12,11 +12,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        Passport::ignoreRoutes();
-
         $this->app->bind(
             'App\Repositories\User\UserRepositoryInterface',
             'App\Repositories\User\UserRepository'
+        );
+
+        $this->app->bind(
+            'App\Repositories\Wallet\WalletRepositoryInterface',
+            'App\Repositories\Wallet\WalletRepository'
+        );
+
+        $this->app->bind(
+            'App\Repositories\Transaction\TransactionRepositoryInterface',
+            'App\Repositories\Transaction\TransactionRepository'
         );
     }
 

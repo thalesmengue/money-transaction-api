@@ -55,9 +55,6 @@ $ ./vendor/bin/sail artisan key:generate
 
 # migre as tabelas
 $ ./vendor/bin/sail artisan migrate
-
-# gere as keys do passaport
-$ ./vendor/bin/sail artisan passport:install --uuids
 ```
 
 Ao final, sua aplicação estará rodando em ```http://localhost```
@@ -67,7 +64,7 @@ Foram realizados testes para cobrir os possíveis cenários da aplicação.
 
 Para rodar os testes digite:
 ```bash
- sail artisan test
+ ./vendor/bin/sail artisan test
 ```
 
 ### Referências

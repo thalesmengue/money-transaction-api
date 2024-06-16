@@ -7,8 +7,10 @@ use Illuminate\Support\Str;
 
 class UserObserver
 {
-    public function creating(User $user): void
+    public function created(User $user): void
     {
-        $user->id = Str::uuid();
+        $user->wallet()->create([
+            'balance' => rand(10, 1000)
+        ]);
     }
 }

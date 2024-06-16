@@ -18,12 +18,17 @@ class TransactionControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_can_make_a_successfull_transaction(): void
+    public function test_can_make_a_successful_transaction(): void
     {
-        $user = User::factory()->has(Wallet::factory()->state(['balance' => 200]))->create();
-        $receiver = User::factory()->has(Wallet::factory()->state(['balance' => 0]))->state(['role' => 'shopkeeper'])->create();
+        $user = User::factory()->create();
+        $user->wallet()->update([
+            'balance' => 150
+        ]);
 
-        Passport::actingAs($user);
+        $receiver = User::factory()->create(['role' => 'shopkeeper']);
+        $receiver->wallet()->update([
+            'balance' => 50
+        ]);
 
         Http::fake([
             config('authorization.url') => Http::response([
@@ -47,12 +52,12 @@ class TransactionControllerTest extends TestCase
 
         $this->assertDatabaseHas('wallets', [
             'owner_id' => $user->id,
-            'balance' => 100
+            'balance' => 50
         ]);
 
         $this->assertDatabaseHas('wallets', [
             'owner_id' => $receiver->id,
-            'balance' => 100
+            'balance' => 150
         ]);
 
         $this->assertDatabaseHas('transactions', [
@@ -71,8 +76,6 @@ class TransactionControllerTest extends TestCase
         $user = User::factory()->has(Wallet::factory()->state(['balance' => 200]))->state(['role' => 'shopkeeper'])->create();
         $receiver = User::factory()->has(Wallet::factory()->state(['balance' => 0]))->create();
 
-        Passport::actingAs($user);
-
         $response = $this->post(route('transaction'), [
             'payer_id' => $user->id,
             'receiver_id' => $receiver->id,
@@ -86,11 +89,15 @@ class TransactionControllerTest extends TestCase
             ->assertSee($exception->getMessage());
     }
 
-    public function test_user_cant_send_transaction_to_yourself()
+    public function test_user_cant_send_transaction_to_yourself(): void
     {
-        $user = User::factory()->has(Wallet::factory()->state(['balance' => 200]))->state(['role' => 'shopkeeper'])->create();
+        $user = User::factory()->create([
+            'role' => 'shopkeeper'
+        ]);
 
-        Passport::actingAs($user);
+        $user->wallet()->update([
+            'balance' => 150
+        ]);
 
         $response = $this->post(route('transaction'), [
             'payer_id' => $user->id,
@@ -105,12 +112,14 @@ class TransactionControllerTest extends TestCase
             ->assertStatus($exception->getCode());
     }
 
-    public function test_user_without_enough_balance_cant_send_transaction()
+    public function test_user_without_enough_balance_cant_send_transaction(): void
     {
-        $user = User::factory()->has(Wallet::factory()->state(['balance' => 25]))->create();
-        $receiver = User::factory()->has(Wallet::factory()->state(['balance' => 0]))->create();
+        $user = User::factory()->create();
+        $user->wallet()->update([
+            'balance' => 10
+        ]);
 
-        Passport::actingAs($user);
+        $receiver = User::factory()->create();
 
         $response = $this->post(route('transaction'), [
             'payer_id' => $user->id,
@@ -125,12 +134,10 @@ class TransactionControllerTest extends TestCase
             ->assertSee($exception->getMessage());
     }
 
-    public function test_cannot_make_transaction_with_unauthorized_service()
+    public function test_cannot_make_transaction_with_unauthorized_service(): void
     {
-        $user = User::factory()->has(Wallet::factory()->state(['balance' => 25]))->create();
-        $receiver = User::factory()->has(Wallet::factory()->state(['balance' => 0]))->create();
-
-        Passport::actingAs($user);
+        $user = User::factory()->create();
+        $receiver = User::factory()->create();
 
         Http::fake([
             config('authorization.url') => Http::response([
