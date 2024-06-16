@@ -14,13 +14,8 @@ o dinheiro deve voltar para a carteira do usuário que envia.
 
 ### Sobre a Resolução
 
-- A criação da carteira é feita por meio de event/listener, então, no momento que um usuário é registrado,
-  um evento é chamado, e um listener está "ouvindo" esse evento, esse listener realizará a criação da carteira,
-  assim, cada usuário cadastrado irá ter sua carteira criada automaticamente, mas para esse fluxo não acabar lento em
-  algum momento
-  que esteja com muitas requisições, e não tornar a experiência do usuária lenta, o listener de criação da carteira está
-  setado para
-  ser assíncrono, assim, o usuário vai ser registrado, e o listener de criação da carteira jogado para uma fila.
+- A criação da carteira é feita por meio de observer, que é uma classe que escuta os eventos do Eloquent, e, ao 
+ser criado um usuário, é escutado o evento de "created" e é criada uma carteira para o usuário.
 - Os IDs das carteiras, dos usuários, e dos lojistas foram cadastrados como UUID, tendo em vista que estão sendo
 tratados dados sensíveis.
 - A responsabilidade de criação dos UUIDs foram colocadas em observers.
