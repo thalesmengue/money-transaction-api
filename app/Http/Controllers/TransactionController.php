@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Transaction\MakeTransactionAction;
+use App\DataTransferObjects\Transaction\TransactionData;
 use App\Exceptions\TransactionException;
 use App\Exceptions\UserException;
 use App\Exceptions\WalletException;
@@ -16,7 +17,11 @@ class TransactionController extends Controller
     {
         try {
             return response()->json([
-                'data' => $action->execute($request->validated())
+                'data' => $action->execute(new TransactionData(
+                    payerId: $request->validated('payer_id'),
+                    receiverId: $request->validated('receiver_id'),
+                    amount: $request->validated('amount')
+                ))
             ], Response::HTTP_CREATED);
         } catch (UserException|TransactionException|WalletException $e) {
             return response()->json([

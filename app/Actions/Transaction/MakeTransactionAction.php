@@ -4,10 +4,10 @@ namespace App\Actions\Transaction;
 
 use App\Clients\AuthorizationClient;
 use App\Clients\NotificationClient;
+use App\DataTransferObjects\Transaction\TransactionData;
 use App\Exceptions\TransactionException;
 use App\Exceptions\UserException;
 use App\Exceptions\WalletException;
-use App\Models\Transaction;
 use App\Models\User;
 use App\Repositories\Transaction\TransactionRepository;
 use App\Repositories\Wallet\WalletRepository;
@@ -24,15 +24,15 @@ class MakeTransactionAction
     {
     }
 
-    public function execute(array $data)
+    public function execute(TransactionData $data)
     {
         return DB::transaction(function () use ($data) {
             /** @var User $payer */
-            $payer = $this->walletRepository->findById($data['payer_id']);
+            $payer = $this->walletRepository->findByOwnerId($data->payerId);
 
             /** @var User $receiver */
-            $receiver = $this->walletRepository->findById($data['receiver_id']);
-            $amount = $data['amount'];
+            $receiver = $this->walletRepository->findByOwnerId($data->receiverId);
+            $amount = $data->amount;
 
             if ($payer->id === $receiver->id) {
                 throw TransactionException::cantSendTransactionToYourself();
