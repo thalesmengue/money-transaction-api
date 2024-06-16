@@ -9,7 +9,9 @@ interface UserRepositoryInterface
 {
     public function all(): User|Collection;
 
-    public function find($id): User|null;
+    public function find(string $id): User|null;
 
-    public function destroy($id): int;
+    public function destroy(string $id): bool;
+
+    public function create(array $data): User;
 }

@@ -8,14 +8,18 @@ use App\Exceptions\TransactionException;
 use App\Exceptions\UserException;
 use App\Exceptions\WalletException;
 use App\Models\Transaction;
-use App\Models\Wallet;
+use App\Models\User;
+use App\Repositories\Transaction\TransactionRepository;
+use App\Repositories\Wallet\WalletRepository;
 use Illuminate\Support\Facades\DB;
 
 class MakeTransactionAction
 {
     public function __construct(
         private readonly NotificationClient $notification,
-        private readonly AuthorizationClient $authorization
+        private readonly AuthorizationClient $authorization,
+        private readonly WalletRepository $walletRepository,
+        private readonly TransactionRepository $transactionRepository
     )
     {
     }
@@ -23,8 +27,11 @@ class MakeTransactionAction
     public function execute(array $data)
     {
         return DB::transaction(function () use ($data) {
-            $payer = Wallet::query()->with('user')->where('owner_id', '=', $data['payer_id'])->first();
-            $receiver = Wallet::query()->where('owner_id', '=', $data['receiver_id'])->first();
+            /** @var User $payer */
+            $payer = $this->walletRepository->findById($data['payer_id']);
+
+            /** @var User $receiver */
+            $receiver = $this->walletRepository->findById($data['receiver_id']);
             $amount = $data['amount'];
 
             if ($payer->id === $receiver->id) {
@@ -46,7 +53,7 @@ class MakeTransactionAction
             $payer->decrement('balance', $amount);
             $receiver->increment('balance', $amount);
 
-            $transaction = Transaction::create([
+            $transaction = $this->transactionRepository->create([
                 'payer_id' => $payer->id,
                 'receiver_id' => $receiver->id,
                 'amount' => $amount,

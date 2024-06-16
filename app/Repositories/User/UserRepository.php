@@ -12,13 +12,18 @@ class UserRepository implements UserRepositoryInterface
         return User::all();
     }
 
-    public function find($id): User|null
+    public function find(string $id): User|null
     {
         return User::find($id);
     }
 
-    public function destroy($id): int
+    public function destroy(string $id): bool
     {
         return User::destroy($id);
+    }
+
+    public function create(array $data): User
+    {
+        return User::create($data);
     }
 }

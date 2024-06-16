@@ -7,7 +7,6 @@ use App\Exceptions\TransactionException;
 use App\Exceptions\UserException;
 use App\Exceptions\WalletException;
 use App\Http\Requests\TransactionRequest;
-use App\Services\TransactionService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
