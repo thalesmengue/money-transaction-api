@@ -53,11 +53,7 @@ class MakeTransactionAction
             $payer->decrement('balance', $amount);
             $receiver->increment('balance', $amount);
 
-            $transaction = $this->transactionRepository->create([
-                'payer_id' => $payer->id,
-                'receiver_id' => $receiver->id,
-                'amount' => $amount,
-            ]);
+            $transaction = $this->transactionRepository->create($data);
 
             if ($this->notification->notify()->json('message') != "Success") {
                 throw TransactionException::unavailabilityToSendEmail();
