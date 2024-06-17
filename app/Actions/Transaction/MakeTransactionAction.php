@@ -8,6 +8,7 @@ use App\DataTransferObjects\Transaction\TransactionData;
 use App\Exceptions\TransactionException;
 use App\Exceptions\UserException;
 use App\Exceptions\WalletException;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Repositories\Transaction\TransactionRepository;
 use App\Repositories\Wallet\WalletRepository;
@@ -16,15 +17,15 @@ use Illuminate\Support\Facades\DB;
 class MakeTransactionAction
 {
     public function __construct(
-        private readonly NotificationClient $notification,
-        private readonly AuthorizationClient $authorization,
+        private readonly NotificationClient $notificationClient,
+        private readonly AuthorizationClient $authorizationClient,
         private readonly WalletRepository $walletRepository,
         private readonly TransactionRepository $transactionRepository
     )
     {
     }
 
-    public function execute(TransactionData $data)
+    public function execute(TransactionData $data): Transaction
     {
         return DB::transaction(function () use ($data) {
             /** @var User $payer */
@@ -46,7 +47,7 @@ class MakeTransactionAction
                 throw WalletException::insufficientBalance();
             }
 
-            if ($this->authorization->authorize()->json('message') != "Autorizado") {
+            if ($this->authorizationClient->authorize() != "Autorizado") {
                 throw TransactionException::transactionUnauthorized();
             }
 
@@ -55,7 +56,7 @@ class MakeTransactionAction
 
             $transaction = $this->transactionRepository->create($data);
 
-            if ($this->notification->notify()->json('message') != "Success") {
+            if ($this->notificationClient->notify() != "Success") {
                 throw TransactionException::unavailabilityToSendEmail();
             }
 

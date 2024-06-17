@@ -7,8 +7,9 @@ use Illuminate\Support\Facades\Http;
 
 class AuthorizationClient
 {
-    public function authorize(): Response
+    public function authorize(): string
     {
-        return Http::get(config('authorization.url'));
+        return Http::get(config('authorization.url'))
+            ->json('message');
     }
 }
