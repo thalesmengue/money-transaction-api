@@ -17,12 +17,10 @@ class TransactionController extends Controller
     {
         try {
             return response()->json([
-                'data' => $action->execute(new TransactionData(
-                    payerId: $request->validated('payer_id'),
-                    receiverId: $request->validated('receiver_id'),
-                    amount: $request->validated('amount')
-                ))
-            ], Response::HTTP_CREATED);
+                'data' => $action->execute(
+                    TransactionData::fromRequest($request->validated()
+                    )
+                )], Response::HTTP_CREATED);
         } catch (UserException|TransactionException|WalletException $e) {
             return response()->json([
                 'message' => $e->getMessage()
