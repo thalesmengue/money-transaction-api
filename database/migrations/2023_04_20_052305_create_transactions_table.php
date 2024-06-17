@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('payer_id')->references('id')->on('wallets');
-            $table->foreignUuid('receiver_id')->references('id')->on('wallets');
+            $table->foreignUuid('payer_id')->references('owner_id')->on('wallets');
+            $table->foreignUuid('receiver_id')->references('owner_id')->on('wallets');
             $table->integer('amount');
             $table->timestamps();
         });
