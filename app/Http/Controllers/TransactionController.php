@@ -18,9 +18,9 @@ class TransactionController extends Controller
         try {
             return response()->json([
                 'data' => $action->execute(
-                    TransactionData::fromRequest($request->validated()
-                    )
-                )], Response::HTTP_CREATED);
+                    TransactionData::fromRequest($request->validated())
+                )
+            ], Response::HTTP_CREATED);
         } catch (UserException|TransactionException|WalletException $e) {
             return response()->json([
                 'message' => $e->getMessage()
