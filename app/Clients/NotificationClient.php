@@ -7,8 +7,9 @@ use Illuminate\Support\Facades\Http;
 
 class NotificationClient
 {
-    public function notify(): Response
+    public function notify(): string
     {
-        return Http::get(config('notification.url'));
+        return Http::get(config('notification.url'))
+            ->json('message');
     }
 }

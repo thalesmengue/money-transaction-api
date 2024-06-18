@@ -10,7 +10,7 @@ class UserObserver
     public function created(User $user): void
     {
         $user->wallet()->create([
-            'balance' => rand(10, 1000)
+            'balance' => 0
         ]);
     }
 }
